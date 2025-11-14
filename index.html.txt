@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Food Uh..! Marketplace — Buy & Sell</title>
+  <style>
+    :root{--orange:#ff6a00;--green:#c9f07a;--bg:#fffdf8;--muted:#55656a;--card:#fff;--radius:12px;--shadow:0 6px 18px rgba(18,18,18,0.08);font-family:Inter,system-ui,Segoe UI,Roboto,Arial}
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#f8fff0);color:#102022}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;background:linear-gradient(90deg,var(--orange),#ff9a44);color:#fff}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:var(--green);display:grid;place-items:center;color:#123;font-weight:800}
+    .brand h1{margin:0;font-size:1.25rem}
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.25);color:white;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .container{max-width:1200px;margin:20px auto;padding:0 18px;display:grid;grid-template-columns:1fr 360px;gap:16px}
+    .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .card{border-radius:10px;border:1px solid #f1f1f1;padding:10px;display:flex;flex-direction:column;gap:8px}
+    .card img{width:100%;height:140px;object-fit:cover;border-radius:8px}
+    .price{color:var(--orange);font-weight:800}
+    .add{background:var(--green);border:none;padding:8px;border-radius:8px;cursor:pointer}
+    .ghost{background:transparent;border:1px solid #eee;padding:8px;border-radius:8px;cursor:pointer}
+    .search-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+    input[type=text],input[type=number],select,textarea{padding:8px;border-radius:8px;border:1px solid #eee;width:100%}
+    .seller-panel{display:grid;gap:8px}
+    .cart{position:sticky;top:20px}
+    .cart-item{display:flex;gap:8px;align-items:center;border-radius:8px;padding:8px;border:1px solid #f4f4f4}
+    .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:6px}
+    .muted{color:var(--muted);font-size:0.9rem}
+    footer{text-align:center;padding:12px;color:var(--muted);max-width:1200px;margin:18px auto}
+    @media(max-width:880px){.container{grid-template-columns:1fr}.cart{position:relative;top:0}}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">FU</div>
+      <div>
+        <h1>Food Uh..! Marketplace</h1>
+        <div class="muted">Buy & Sell local food — quick listings, seamless checkout</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="toggleSeller">Seller Dashboard</button>
+      <button class="btn" id="viewOrders">Orders</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section>
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div>
+            <h2 style="margin:0">Marketplace</h2>
+            <div class="muted">Buy fresh and home-made food from local sellers</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="searchInput" type="text" placeholder="Search items, categories, sellers..." style="width:280px;padding:8px;border-radius:8px;border:1px solid #eee">
+            <select id="filterBy"><option value="all">All</option><option value="veg">Veg</option><option value="nonveg">Non-Veg</option><option value="beverage">Beverage</option><option value="dessert">Dessert</option></select>
+          </div>
+        </div>
+
+        <div id="productGrid" class="grid"></div>
+      </div>
+
+      <div class="panel" style="margin-top:12px">
+        <h3 style="margin:0 0 8px 0">Quick Actions</h3>
+        <div style="display:flex;gap:8px">
+          <button class="add" id="addSample">Add Sample Products</button>
+          <button class="ghost" id="clearProducts">Clear Products</button>
+        </div>
+        <p class="muted" style="margin-top:8px">Sellers can list items using the Seller Dashboard (click Seller Dashboard)</p>
+      </div>
+    </section>
+
+    <aside class="cart panel">
+      <h2 style="margin:0 0 8px 0">Cart & Checkout</h2>
+      <div id="cartList"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px"><span class="muted">Subtotal</span><strong id="sub">₹0</strong></div>
+      <div style="display:flex;justify-content:space-between"><span class="muted">Delivery</span><strong id="del">₹0</strong></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px"><strong>Total</strong><strong id="total">₹0</strong></div>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="ghost" id="emptyCart">Empty</button>
+        <button class="add" id="buyNow">Buy Now</button>
+      </div>
+
+      <hr style="margin:12px 0">
+      <div>
+        <h4 style="margin:0 0 6px 0">Seller Quick Login</h4>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="sellerName" placeholder="Seller name">
+          <button class="ghost" id="sellerLogin">Login</button>
+        </div>
+        <p class="muted">Login to manage your listings in the Seller Dashboard</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Seller Dashboard modal-like panel -->
+  <div id="sellerPanel" style="position:fixed;right:20px;bottom:20px;width:420px;max-width:95%;display:none;z-index:40">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">Seller Dashboard</h3>
+        <div>
+          <button class="ghost" id="closeSeller">Close</button>
+        </div>
+      </div>
+
+      <div style="margin-top:10px" class="seller-panel">
+        <div style="display:flex;gap:8px">
+          <input id="listName" placeholder="Item name">
+          <input id="listPrice" type="number" placeholder="Price">
+        </div>
+        <div style="display:flex;gap:8px">
+          <select id="listCategory"><option value="veg">Veg</option><option value="nonveg">Non-Veg</option><option value="beverage">Beverage</option><option value="dessert">Dessert</option></select>
+          <input id="listImage" type="file" accept="image/*">
+        </div>
+        <textarea id="listDesc" placeholder="Short description" rows="2"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="ghost" id="clearListing">Clear</button>
+          <button class="add" id="postListing">Post Listing</button>
+        </div>
+
+        <h4 style="margin:6px 0">Your Listings</h4>
+        <div id="sellerListings" style="display:grid;gap:8px;max-height:240px;overflow:auto"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Food Uh..! Marketplace • Theme: Orange & Light Green</footer>
+
+  <script>
+    // Simple single-file marketplace app using localStorage
+    const productGrid = document.getElementById('productGrid');
+    const cartList = document.getElementById('cartList');
+    const subEl = document.getElementById('sub');
+    const delEl = document.getElementById('del');
+    const totalEl = document.getElementById('total');
+
+    const sellerPanel = document.getElementById('sellerPanel');
+    const sellerListingsEl = document.getElementById('sellerListings');
+
+    let products = load('products') || [];
+    let cart = load('cart') || {};
+    let sellers = load('sellers') || {};
+    let currentSeller = load('currentSeller') || null;
+
+    // sample images (from earlier canvas) will be used as placeholders
+    const sample1 = '/mnt/data/99cc2e08-2171-4e69-958d-c5661a1e8b67.jpg';
+    const sample2 = '/mnt/data/img2.jpg';
+    const sample3 = '/mnt/data/img3.jpg';
+    const sample4 = '/mnt/data/img4.jpg';
+
+    // init
+    renderProducts(products);
+    renderCart();
+    renderSellerListings();
+
+    document.getElementById('addSample').addEventListener('click',()=>{
+      if(products.length>0 && !confirm('Add more sample products on top?')) return;
+      const samples = [
+        {id:uid(),name:'Mixed Veg Curry',price:120,cat:'veg',desc:'Home-style mixed vegetables',img:sample1,seller:'Green Kitchen'},
+        {id:uid(),name:'Paneer Roll',price:99,cat:'veg',desc:'Soft paratha roll with spiced paneer',img:sample2,seller:'Rolls & Co'},
+        {id:uid(),name:'Chicken Biryani',price:180,cat:'nonveg',desc:'Flavorful biryani with boiled egg',img:sample3,seller:'Biryani Hub'},
+        {id:uid(),name:'Cold Coffee',price:85,cat:'beverage',desc:'Iced coffee with whipped cream',img:sample4,seller:'Cafe Corner'}
+      ];
+      products = samples.concat(products);
+      save('products',products); renderProducts(products);
+    });
+
+    document.getElementById('clearProducts').addEventListener('click',()=>{ if(confirm('Clear all products?')){products=[];save('products',products);renderProducts(products)} });
+
+    document.getElementById('searchInput').addEventListener('input',e=>{
+      const q = e.target.value.trim().toLowerCase();
+      const filter = document.getElementById('filterBy').value;
+      const filtered = products.filter(p=> (p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q) || (p.seller||'').toLowerCase().includes(q)) && (filter==='all' || p.cat===filter));
+      renderProducts(filtered);
+    });
+    document.getElementById('filterBy').addEventListener('change',()=>document.getElementById('searchInput').dispatchEvent(new Event('input')));
+
+    document.getElementById('toggleSeller').addEventListener('click',()=>{
+      sellerPanel.style.display = sellerPanel.style.display==='block' ? 'none':'block';
+    });
+    document.getElementById('closeSeller').addEventListener('click',()=>sellerPanel.style.display='none');
+
+    document.getElementById('sellerLogin').addEventListener('click',()=>{
+      const name = document.getElementById('sellerName').value.trim();
+      if(!name){ alert('Enter seller name'); return; }
+      currentSeller = name; save('currentSeller', currentSeller); alert('Logged in as ' + name); renderSellerListings();
+    });
+
+    document.getElementById('postListing').addEventListener('click',()=>{
+      if(!currentSeller){ alert('Login as seller first in the Cart panel'); return; }
+      const nm = document.getElementById('listName').value.trim();
+      const pr = Number(document.getElementById('listPrice').value||0);
+      const cat = document.getElementById('listCategory').value;
+      const desc = document.getElementById('listDesc').value.trim();
+      const file = document.getElementById('listImage').files[0];
+      if(!nm || pr<=0){ alert('Provide name and price'); return; }
+
+      if(file){
+        const reader = new FileReader();
+        reader.onload = ev=>{
+          const img = ev.target.result;
+          createListing(nm,pr,cat,desc,img,currentSeller);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        createListing(nm,pr,cat,desc,sample1,currentSeller);
+      }
+    });
+
+    function createListing(nm,pr,cat,desc,img,seller){
+      const p = {id:uid(),name:nm,price:pr,cat:cat,desc:desc,img:img,seller:seller};
+      products.unshift(p); save('products',products); renderProducts(products); renderSellerListings();
+      // clear
+      document.getElementById('listName').value=''; document.getElementById('listPrice').value=''; document.getElementById('listDesc').value=''; document.getElementById('listImage').value='';
+    }
+
+    function renderProducts(list){
+      productGrid.innerHTML='';
+      if(list.length===0){ productGrid.innerHTML='<div class="muted">No products found.</div>'; return; }
+      list.forEach(p=>{
+        const c = document.createElement('div'); c.className='card';
+        c.innerHTML = `\
+          <img src="${p.img}" alt="${escape(p.name)}">\
+          <div style=\"display:flex;justify-content:space-between;align-items:center\">\
+            <div>\
+              <strong>${escape(p.name)}</strong>\
+              <div class=\"muted\">${escape(p.seller||'Local')}</div>\
+            </div>\
+            <div class=\"price\">₹${p.price}</div>\
+          </div>\
+          <div class=\"muted\">${escape(p.desc)}</div>\
+          <div style=\"display:flex;gap:8px;justify-content:space-between;margin-top:6px\">\
+            <button class=\"add\" data-id=\"${p.id}\">Add to Cart</button>\
+            <button class=\"ghost\" data-id=\"${p.id}\">View</button>\
+          </div>`;
+        productGrid.appendChild(c);
+      });
+      // bind
+      document.querySelectorAll('.add').forEach(b=>b.addEventListener('click',e=>addToCart(e.currentTarget.dataset.id)));
+      document.querySelectorAll('.ghost').forEach(b=>b.addEventListener('click',e=>viewProduct(e.currentTarget.dataset.id)));
+    }
+
+    function addToCart(id){
+      const p = products.find(x=>x.id===id); if(!p) return;
+      if(cart[id]) cart[id].qty += 1; else cart[id] = {...p, qty:1}; save('cart',cart); renderCart();
+    }
+
+    function renderCart(){
+      cartList.innerHTML='';
+      const items = Object.values(cart);
+      if(items.length===0){ cartList.innerHTML='<div class="muted">Your cart is empty.</div>'; subEl.textContent='₹0';delEl.textContent='₹0';totalEl.textContent='₹0'; return; }
+      items.forEach(it=>{
+        const d = document.createElement('div'); d.className='cart-item';
+        d.innerHTML = `\
+          <img src="${it.img}" alt="${escape(it.name)}">\
+          <div style=\"flex:1\">\
+            <div style=\"display:flex;justify-content:space-between\">\
+              <strong>${escape(it.name)}</strong>\
+              <div class=\"price\">₹${it.price * it.qty}</div>\
+            </div>\
+            <div class=\"muted\">qty: ${it.qty} • ${escape(it.seller||'Local')}</div>\
+          </div>\
+          <div style=\"display:flex;flex-direction:column;gap:6px\">\
+            <button data-id=\"${it.id}\" class=\"ghost\">+</button>\
+            <button data-id=\"${it.id}\" class=\"ghost\">-</button>\
+            <button data-id=\"${it.id}\" class=\"ghost\">Remove</button>\
+          </div>`;
+        cartList.appendChild(d);
+      });
+      // bind actions
+      cartList.querySelectorAll('button').forEach(btn=>{
+        const id = btn.dataset.id;
+        const txt = btn.textContent;
+        if(txt==='+') btn.addEventListener('click',()=>changeQty(id,1));
+        else if(txt==='-') btn.addEventListener('click',()=>changeQty(id,-1));
+        else btn.addEventListener('click',()=>{ delete cart[id]; save('cart',cart); renderCart(); });
+      });
+      recalc();
+    }
+
+    function changeQty(id,d){ if(!cart[id]) return; cart[id].qty += d; if(cart[id].qty<=0) delete cart[id]; save('cart',cart); renderCart(); }
+
+    document.getElementById('emptyCart').addEventListener('click',()=>{ if(confirm('Empty cart?')){cart={};save('cart',cart);renderCart()} });
+    document.getElementById('buyNow').addEventListener('click',()=>{
+      const items = Object.values(cart);
+      if(items.length===0){ alert('Cart empty'); return; }
+      // create a simple order and attribute to sellers
+      const order = {id: 'o_'+Date.now(), items:items, total:calcSubtotal()+deliveryFee(), date:new Date().toISOString()};
+      const orders = load('orders') || [];
+      orders.push(order); save('orders',orders);
+      alert('Order placed! Total: ₹' + order.total);
+      cart = {}; save('cart',cart); renderCart();
+    });
+
+    function recalc(){ const s = calcSubtotal(); const d = deliveryFee(); subEl.textContent='₹'+s; delEl.textContent='₹'+d; totalEl.textContent='₹'+(s+d); }
+    function calcSubtotal(){ return Object.values(cart).reduce((sum,it)=>sum + it.price * it.qty, 0); }
+    function deliveryFee(){ const s = calcSubtotal(); return s >= 499 ? 0 : (s===0?0:49); }
+
+    function viewProduct(id){ const p = products.find(x=>x.id===id); if(!p) return; alert(p.name + "\n\n" + p.desc + "\n\nPrice: ₹" + p.price + "\nSeller: " + (p.seller||'Local')) }
+
+    function renderSellerListings(){ sellerListingsEl.innerHTML=''; if(!currentSeller){ sellerListingsEl.innerHTML='<div class="muted">Login as seller to see your listings</div>'; return; } const mine = products.filter(p=>p.seller===currentSeller); if(mine.length===0) sellerListingsEl.innerHTML='<div class="muted">No listings yet</div>'; mine.forEach(p=>{ const div = document.createElement('div'); div.style.display='flex'; div.style.gap='8px'; div.style.alignItems='center'; div.style.border='1px solid #f2f2f2'; div.style.padding='6px'; div.style.borderRadius='8px'; div.innerHTML = `<img src="${p.img}" style="width:56px;height:56px;object-fit:cover;border-radius:6px"><div style="flex:1"><strong>${escape(p.name)}</strong><div class=\"muted\">₹${p.price}</div></div><div style=\"display:flex;flex-direction:column;gap:6px\"><button class=\"ghost\" data-id=\"${p.id}\">Edit</button><button class=\"ghost\" data-id=\"${p.id}\">Remove</button></div>`; sellerListingsEl.appendChild(div); });
+      // bind edit/remove
+      sellerListingsEl.querySelectorAll('button').forEach(btn=>{
+        const id = btn.dataset.id; const txt = btn.textContent;
+        if(txt==='Remove') btn.addEventListener('click',()=>{ if(confirm('Remove listing?')){ products = products.filter(x=>x.id!==id); save('products',products); renderProducts(products); renderSellerListings(); } });
+        if(txt==='Edit') btn.addEventListener('click',()=>{ const p = products.find(x=>x.id===id); if(!p) return; document.getElementById('listName').value = p.name; document.getElementById('listPrice').value = p.price; document.getElementById('listDesc').value = p.desc; document.getElementById('listCategory').value = p.cat; sellerPanel.style.display='block'; // remove old item
+          products = products.filter(x=>x.id!==id); save('products',products); renderProducts(products); renderSellerListings(); });
+      });
+    }
+
+    // helpers
+    function uid(){ return 'p_' + Math.random().toString(36).slice(2,9); }
+    function save(k,v){ localStorage.setItem('market_' + k, JSON.stringify(v)); }
+    function load(k){ try{return JSON.parse(localStorage.getItem('market_' + k));}catch(e){return null;} }
+    function escape(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  </script>
+</body>
+</html>
